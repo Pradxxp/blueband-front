@@ -87,16 +87,6 @@ function DashBoard() {
   
     loadCSV();
   }, []);
-  
-    {/* <div>
-      <h3>Coordinates</h3>
-      <ul>
-        {trackCoordinates.map((coord, index) => (
-          <li key={index}>{`Lat: ${coord.lat}, Lng: ${coord.lng}`}</li>
-        ))}
-      </ul>
-    </div>
- */}
   useEffect(() => {
     if (isLoaded) {
       import('marker-animate-unobtrusive').then((module) => {
@@ -120,7 +110,6 @@ function DashBoard() {
     return date.toISOString();
   };
 
-  
   const findClosestTrackPoint = (position) => {
     let closestPoint = trackCoordinates[0];
     let minDistance = Number.MAX_VALUE;
@@ -245,28 +234,6 @@ function DashBoard() {
   }, []);
 
   useEffect(() => {
-    const socket = io('http://localhost:3000');
-
-    socket.on('warning', (data) => {
-      setSosPopups((prevPopups) => {
-        const newPopups = new Map(prevPopups);
-        newPopups.set(data.carId, data.message);
-        return newPopups;
-      });
-
-      // Automatically remove the popup after 10 seconds
-      setTimeout(() => {
-        setSosPopups((prevPopups) => {
-          const newPopups = new Map(prevPopups);
-          newPopups.delete(data.carId);
-          return newPopups;
-        });
-      }, 10000);
-    });
-    return () => socket.disconnect();
-  }, [updateCarData, updateCarStatus]);
-
-  useEffect(() => {
     const getTrackData = async () => {
       const { data, error } = await supabase
         .from('tracks')
@@ -286,6 +253,23 @@ function DashBoard() {
 
     socket.on('locationUpdate', updateCarData);
     socket.on('ok', updateCarStatus);
+
+    socket.on('warning', (data) => {
+      setSosPopups((prevPopups) => {
+        const newPopups = new Map(prevPopups);
+        newPopups.set(data.carId, data.message);
+        return newPopups;
+      });
+
+     /*  // Automatically remove the popup after 10 seconds
+      setTimeout(() => {
+        setSosPopups((prevPopups) => {
+          const newPopups = new Map(prevPopups);
+          newPopups.delete(data.carId);
+          return newPopups;
+        });
+      }, 10000); */
+    });
 
     socket.on('sos', (data) => {
       setSosMessages((prevMessages) => {
@@ -506,9 +490,19 @@ function DashBoard() {
                   <Polyline
                     path={trackCoordinates}
                     options={{
-                      strokeColor: "#0000FF",
+                      strokeColor: "#000000",
                       strokeOpacity: 1.0,
-                      strokeWeight: 3
+                      strokeWeight: 8  // Adjust this for wider or narrower border
+                    }}
+                  />
+                  
+                  {/* Grey interior polyline */}
+                  <Polyline
+                    path={trackCoordinates}
+                    options={{
+                      strokeColor: "#808080",
+                      strokeOpacity: 1.0,
+                      strokeWeight: 5.5  // Adjust this to change the width of the grey part
                     }}
                   />
 
